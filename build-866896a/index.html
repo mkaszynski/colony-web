@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#172519">
+  <title>Colony</title>
+  <style>
+    :root { color-scheme: dark; background: #172519; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
+    body { background: radial-gradient(circle at 50% 35%, #38533a 0, #172519 58%, #0c140d 100%); }
+    #canvas { width: 100vw; height: 100dvh; display: block; border: 0; outline: 0; touch-action: none; image-rendering: pixelated; }
+    #status { position: fixed; inset: 0; display: grid; place-content: center; gap: 12px; padding: 28px; text-align: center;
+      color: #f3e8c2; font: 700 16px/1.5 Georgia, serif; letter-spacing: .12em; pointer-events: none; }
+    #status strong { font-size: 32px; letter-spacing: .18em; text-shadow: 3px 3px #0c140d; }
+    #status::after { content: "COPYRIGHT (C) 2026 MKASZYNSKI. ALL RIGHTS RESERVED."; font-size: 11px;
+      letter-spacing: .08em; opacity: .72; }
+    #status.error { color: #ffd0ba; overflow-wrap: anywhere; }
+    body.running #status { display: none; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  <div id="status"><strong>COLONY</strong><span>PREPARING THE CONTINENT</span></div>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const statusElement = document.getElementById('status');
+    const mobileUserAgent = navigator.userAgentData?.mobile === true ||
+      /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    const compactCoarseDevice = matchMedia('(pointer: coarse)').matches &&
+      Math.min(screen.width, screen.height) <= 900;
+    const phoneLayout = mobileUserAgent || compactCoarseDevice;
+    var Module = {
+      canvas,
+      phoneLayout,
+      onRuntimeInitialized() { Module.setStatus('STARTING THE RENDERER'); },
+      onColonyReady() {
+        document.body.classList.add('running');
+        statusElement.classList.remove('error');
+        canvas.focus();
+      },
+      onColonyError(reason) {
+        document.body.classList.remove('running');
+        statusElement.classList.add('error');
+        statusElement.lastElementChild.textContent = 'UNABLE TO START: ' + reason;
+      },
+      printErr(text) { console.error(text); },
+      setStatus(text) {
+        if (text) statusElement.lastElementChild.textContent = text.toUpperCase();
+      },
+      onAbort(reason) {
+        Module.onColonyError(reason);
+      }
+    };
+    document.addEventListener('touchmove', event => event.preventDefault(), { passive: false });
+  </script>
+  <script async type="text/javascript" src="index.js"></script>
+</body>
+</html>
