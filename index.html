@@ -39,21 +39,25 @@
     var Module = {
       canvas,
       preRun: [sizeCanvas],
-      onRuntimeInitialized() { document.body.classList.add('running'); canvas.focus(); },
+      onRuntimeInitialized() { Module.setStatus('STARTING THE RENDERER'); },
+      onColonyReady() {
+        document.body.classList.add('running');
+        statusElement.classList.remove('error');
+        canvas.focus();
+      },
+      onColonyError(reason) {
+        document.body.classList.remove('running');
+        statusElement.classList.add('error');
+        statusElement.lastElementChild.textContent = 'UNABLE TO START: ' + reason;
+      },
       printErr(text) { console.error(text); },
       setStatus(text) {
         if (text) statusElement.lastElementChild.textContent = text.toUpperCase();
       },
       onAbort(reason) {
-        document.body.classList.remove('running');
-        statusElement.classList.add('error');
-        statusElement.lastElementChild.textContent = 'UNABLE TO START: ' + reason;
+        Module.onColonyError(reason);
       }
     };
-    if (!navigator.gpu) {
-      statusElement.classList.add('error');
-      statusElement.lastElementChild.textContent = 'THIS BROWSER DOES NOT PROVIDE WEBGPU';
-    }
     document.addEventListener('touchmove', event => event.preventDefault(), { passive: false });
   </script>
   <script async type="text/javascript" src="index.js"></script>
