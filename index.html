@@ -26,11 +26,11 @@
   <script>
     const canvas = document.getElementById('canvas');
     const statusElement = document.getElementById('status');
-    const mobileUserAgent = navigator.userAgentData?.mobile === true ||
-      /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-    const compactCoarseDevice = matchMedia('(pointer: coarse)').matches &&
-      Math.min(screen.width, screen.height) <= 900;
-    const phoneLayout = mobileUserAgent || compactCoarseDevice;
+    const ipadDesktopIdentity = /Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
+    const mobileDevice = navigator.userAgentData?.mobile === true ||
+      /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ipadDesktopIdentity;
+    const touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+    const phoneLayout = mobileDevice && touchDevice;
     var Module = {
       canvas,
       phoneLayout,
