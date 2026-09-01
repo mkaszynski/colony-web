@@ -30,10 +30,10 @@
     const mobileDevice = navigator.userAgentData?.mobile === true ||
       /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ipadDesktopIdentity;
     const touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
-    const phoneLayout = mobileDevice && touchDevice;
+    let activeInputMode = mobileDevice && touchDevice ? 'touch' : 'keyboard';
     var Module = {
       canvas,
-      phoneLayout,
+      phoneLayout: activeInputMode === 'touch',
       onRuntimeInitialized() { Module.setStatus('STARTING THE RENDERER'); },
       onColonyReady() {
         document.body.classList.add('running');
@@ -53,6 +53,15 @@
         Module.onColonyError(reason);
       }
     };
+    const selectInputMode = (mode) => {
+      if (mode === activeInputMode) return;
+      activeInputMode = mode;
+      Module.phoneLayout = mode === 'touch';
+    };
+    window.addEventListener('keydown', () => selectInputMode('keyboard'), { capture: true });
+    window.addEventListener('pointerdown', event => {
+      selectInputMode(event.pointerType === 'touch' ? 'touch' : 'keyboard');
+    }, { capture: true });
     document.addEventListener('touchmove', event => event.preventDefault(), { passive: false });
   </script>
   <script id="colony-runtime-loader">
